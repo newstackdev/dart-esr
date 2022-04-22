@@ -90,7 +90,8 @@ class EOSNode {
   EOSNode(this._nodeURL, this._nodeVersion);
 
   Future<dynamic> _post(String path, Object body) async {
-    var response = await http.post('${this.url}/${this.version}${path}',
+    var uri = Uri.parse('${this.url}/${this.version}${path}');
+    var response = await http.post(uri,
         body: json.encode(body));
     if (response.statusCode >= 300) {
       throw response.body;

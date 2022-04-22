@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
-import 'package:archive/archive.dart';
+import 'dart:io';
 
 import 'package:dart_esr/src/serializeUtils.dart';
 import 'package:dart_esr/src/signing_request_json.dart';
@@ -119,14 +118,14 @@ class EOSIOSigningrequest {
     var list = Uint8List(decoded.length - 1);
 
     list = decoded.sublist(1);
-    var decompressed = ZLibDecoder().decodeBytes(list, raw: true);
+    var decompressed = ZLibCodec(raw: true).decode(list);
 
     return SigningRequest.fromBinary(
         _signingRequestTypes['signing_request'], decompressed);
   }
 
   void _compressRequest() {
-    var encoded = ZLibEncoder().encode(this._request, raw: true);
+    var encoded = ZLibCodec(raw: true).encode(this._request);
     this._request = Uint8List.fromList(encoded);
   }
 

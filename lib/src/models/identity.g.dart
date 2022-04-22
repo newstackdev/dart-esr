@@ -1,10 +1,10 @@
 part of 'identity.dart';
 
-Identity _$IdentityFromJson(Map<String, dynamic> json) {
-  return Identity()..identityPermission = json['permission'];
+Identity _$IdentityV2FromJson(Map<String, dynamic> json) {
+  return IdentityV2()..identityPermission = json['permission'];
 }
 
-Map<String, dynamic> _$IdentityToJson(Identity instance) => <String, dynamic>{
+Map<String, dynamic> _$IdentityV2ToJson(IdentityV2 instance) => <String, dynamic>{
       'permission': instance.identityPermission.toJson(),
     };
 
@@ -19,3 +19,14 @@ Map<String, dynamic> _$IdentityPermissionToJson(IdentityPermission instance) =>
       'actor': instance.actor,
       'permission': instance.permission
     };
+
+Identity _$IdentityV3FromJson(Map<String, dynamic> json) {
+  return IdentityV3()
+    ..scope = json['scope']
+    ..identityPermission = json['permission'];
+}
+
+Map<String, dynamic> _$IdentityV3ToJson(IdentityV3 instance) => <String, dynamic>{
+  'scope': instance.scope,
+  'permission': instance.identityPermission.toJson(),
+};

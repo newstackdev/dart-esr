@@ -15,9 +15,10 @@ import 'package:eosdart/eosdart.dart' as eosDart;
 
 class EOSIOSigningrequest {
   EOSSerializeUtils _client;
-  Map<String, eosDart.Type> _signingRequestTypes;
+  Map<int, Map<String, eosDart.Type>> _signingRequestTypes;
   SigningRequest _signingRequest;
   Uint8List _request;
+  int _version;
 
   EOSIOSigningrequest(
     String nodeUrl,
@@ -27,17 +28,24 @@ class EOSIOSigningrequest {
     int flags = 1,
     String callback = '',
     List info,
+    int version = 2
   }) {
     this._signingRequest = SigningRequest();
     this._client = EOSSerializeUtils(nodeUrl, nodeVersion);
 
-    this._signingRequestTypes = eosDart.getTypesFromAbi(
-        eosDart.createInitialTypes(),
-        eosDart.Abi.fromJson(json.decode(signingRequestJson)));
+    this._signingRequestTypes = {
+      2: eosDart.getTypesFromAbi(
+            eosDart.createInitialTypes(),
+            eosDart.Abi.fromJson(json.decode(signingRequestJsonV2))),
+      3: eosDart.getTypesFromAbi(
+            eosDart.createInitialTypes(),
+            eosDart.Abi.fromJson(json.decode(signingRequestJsonV3)))
+    };
 
     this.setChainId(chainName: chainName, chainId: chainId);
     this.setOtherFields(
         flags: flags, callback: callback, info: info != null ? info : []);
+    this._version = version;
   }
 
   void setNode(String nodeUrl, String nodeVersion) {
@@ -91,6 +99,11 @@ class EOSIOSigningrequest {
     if (callback == null) {
       throw 'Callback is needed';
     }
+
+    if(identity is IdentityV3){
+      this._version = 3;
+    }
+
     _signingRequest.req = ['identity', identity.toJson()];
     _signingRequest.callback = callback;
     _signingRequest.flags = 0;
@@ -100,7 +113,7 @@ class EOSIOSigningrequest {
 
   Future<String> _encode() async {
     this._request =
-        _signingRequest.toBinary(_signingRequestTypes['signing_request']);
+        _signingRequest.toBinary(_signingRequestTypes[this._version]['signing_request']);
 
     this._compressRequest();
     this._addVersionHeaderToRequest();
@@ -115,13 +128,15 @@ class EOSIOSigningrequest {
     }
 
     var decoded = Base64u().decode(request);
+    var header = decoded[0];
+    this._version = header & ~(1 << 7);
     var list = Uint8List(decoded.length - 1);
 
     list = decoded.sublist(1);
     var decompressed = ZLibCodec(raw: true).decode(list);
 
     return SigningRequest.fromBinary(
-        _signingRequestTypes['signing_request'], decompressed);
+        _signingRequestTypes[this._version]['signing_request'], decompressed);
   }
 
   void _compressRequest() {
@@ -130,10 +145,8 @@ class EOSIOSigningrequest {
   }
 
   void _addVersionHeaderToRequest() {
-    var header = ESRConstants.ProtocolVersion;
-
     var list = Uint8List(this._request.length + 1);
-    list[0] = header |= 1 << 7;
+    list[0] = this._version | 1 << 7;
     for (int i = 1; i < list.length; i++) {
       list[i] = this._request[i - 1];
     }

@@ -12,11 +12,11 @@ enum ChainName {
   BEOS,
   WAX,
   PROTON,
-  FIO
+  FIO,
+  EOS_JUNGLE3
 }
 
 class ESRConstants {
-  static const int ProtocolVersion = 2;
   //const AbiTypes = Serialize.getTypesFromAbi(Serialize.createInitialTypes(), abi.data);
   static const Scheme = 'esr:';
   static const PlaceholderName = '............1'; // aka uint64(1)
@@ -56,6 +56,8 @@ class ESRConstants {
     ChainName.PROTON:
         '384da888112027f0321850a169f737c33e53b388aad48b5adace4bab97f437e0',
     ChainName.FIO:
-        '21dcae42c0182200e93f954a074011f9048a7624c6fe81d3c9541a614a88bd1c'
+        '21dcae42c0182200e93f954a074011f9048a7624c6fe81d3c9541a614a88bd1c',
+    ChainName.EOS_JUNGLE3:
+        '2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840'
   };
 }

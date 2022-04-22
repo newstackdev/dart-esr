@@ -1,4 +1,4 @@
-String signingRequestJson = '''
+String signingRequestJsonV2 = '''
 {
    "version": "eosio::abi/1.1",
    "types": [
@@ -218,5 +218,202 @@ String signingRequestJson = '''
          "type": "identity"
       }
    ]
+}
+''';
+
+String signingRequestJsonV3 = '''
+{
+  "version": "eosio::abi/1.1",
+  "types": [
+    {
+      "new_type_name": "chain_alias",
+      "type": "uint8"
+    },
+    {
+      "new_type_name": "chain_id",
+      "type": "checksum256"
+    },
+    {
+      "new_type_name": "request_flags",
+      "type": "uint8"
+    }
+  ],
+  "structs": [
+    {
+      "base": "",
+      "name": "permission_level",
+      "fields": [
+        {
+          "name": "actor",
+          "type": "name"
+        },
+        {
+          "name": "permission",
+          "type": "name"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "action",
+      "fields": [
+        {
+          "name": "account",
+          "type": "name"
+        },
+        {
+          "name": "name",
+          "type": "name"
+        },
+        {
+          "name": "authorization",
+          "type": "permission_level[]"
+        },
+        {
+          "name": "data",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "transaction_extension",
+      "fields": [
+        {
+          "name": "type",
+          "type": "uint16"
+        },
+        {
+          "name": "data",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "transaction_header",
+      "fields": [
+        {
+          "name": "expiration",
+          "type": "time_point_sec"
+        },
+        {
+          "name": "ref_block_num",
+          "type": "uint16"
+        },
+        {
+          "name": "ref_block_prefix",
+          "type": "uint32"
+        },
+        {
+          "name": "max_net_usage_words",
+          "type": "varuint32"
+        },
+        {
+          "name": "max_cpu_usage_ms",
+          "type": "uint8"
+        },
+        {
+          "name": "delay_sec",
+          "type": "varuint32"
+        }
+      ]
+    },
+    {
+      "base": "transaction_header",
+      "name": "transaction",
+      "fields": [
+        {
+          "name": "context_free_actions",
+          "type": "action[]"
+        },
+        {
+          "name": "actions",
+          "type": "action[]"
+        },
+        {
+          "name": "transaction_extensions",
+          "type": "transaction_extension[]"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "identity",
+      "fields": [
+        {
+          "name": "scope",
+          "type": "name"
+        },
+        {
+          "name": "permission",
+          "type": "permission_level?"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "info_pair",
+      "fields": [
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "base": "",
+      "name": "signing_request",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "variant_id"
+        },
+        {
+          "name": "req",
+          "type": "variant_req"
+        },
+        {
+          "name": "flags",
+          "type": "request_flags"
+        },
+        {
+          "name": "callback",
+          "type": "string"
+        },
+        {
+          "name": "info",
+          "type": "info_pair[]"
+        }
+      ]
+    }
+  ],
+  "actions": [],
+  "tables": [],
+  "ricardian_clauses": [],
+  "error_messages": [],
+  "abi_extensions": [],
+  "variants": [
+    {
+      "name": "variant_id",
+      "types": [
+        "chain_alias",
+        "chain_id"
+      ]
+    },
+    {
+      "name": "variant_req",
+      "types": [
+        "action",
+        "action[]",
+        "transaction",
+        "identity"
+      ]
+    }
+  ]
 }
 ''';

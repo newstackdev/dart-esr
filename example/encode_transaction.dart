@@ -4,8 +4,8 @@ void main(List<String> arguments) => transactionExample();
 
 Future<void> transactionExample() async {
   print('Transaction');
-  var esr = EOSIOSigningrequest('https://jungle2.cryptolions.io', 'v1',
-      chainName: ChainName.EOS_JUNGLE2);
+  var esr = EOSIOSigningrequest('https://jungle3.cryptolions.io', 'v1',
+      chainName: ChainName.EOS_JUNGLE3);
 
   var auth = <Authorization>[
     Authorization()

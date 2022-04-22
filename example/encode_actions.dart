@@ -4,8 +4,8 @@ void main(List<String> arguments) => actionsExample();
 
 Future<void> actionsExample() async {
   print('Actions');
-  var esr = EOSIOSigningrequest('https://jungle2.cryptolions.io', 'v1',
-      chainName: ChainName.EOS_JUNGLE2);
+  var esr = EOSIOSigningrequest('https://jungle3.cryptolions.io', 'v1',
+      chainName: ChainName.EOS_JUNGLE3);
 
   var auth = <Authorization>[
     Authorization.fromJson(ESRConstants.PlaceholderAuth)

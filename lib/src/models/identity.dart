@@ -6,25 +6,49 @@ import 'package:eosdart/eosdart.dart';
 part 'identity.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Identity {
+abstract class Identity {
   @JsonKey(name: 'permission')
   IdentityPermission identityPermission;
 
-  Identity();
-
-  factory Identity.fromJson(Map<String, dynamic> json) =>
-      _$IdentityFromJson(json);
-
-  Map<String, dynamic> toJson() => _$IdentityToJson(this);
-
-  @override
-  String toString() => this.toJson().toString();
+  Map<String, dynamic> toJson();
 
   Uint8List toBinary(Type type) {
     var buffer = SerialBuffer(Uint8List(0));
     type.serialize(type, buffer, this.toJson());
     return buffer.asUint8List();
   }
+}
+
+@JsonSerializable(explicitToJson: true)
+class IdentityV2 extends Identity{
+
+  IdentityV2();
+
+  factory IdentityV2.fromJson(Map<String, dynamic> json) =>
+      _$IdentityV2FromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$IdentityV2ToJson(this);
+
+  @override
+  String toString() => this.toJson().toString();
+}
+
+@JsonSerializable(explicitToJson: true)
+class IdentityV3 extends Identity{
+  @JsonKey(name: 'scope')
+  String scope;
+
+  IdentityV3();
+
+  factory IdentityV3.fromJson(Map<String, dynamic> json) =>
+      _$IdentityV3FromJson(json);
+
+  @override
+  Map<String, dynamic> toJson() => _$IdentityV3ToJson(this);
+
+  @override
+  String toString() => this.toJson().toString();
 }
 
 @JsonSerializable(explicitToJson: true)

@@ -24,8 +24,11 @@ class SigningRequest {
 
   SigningRequest();
 
-  factory SigningRequest.fromJson(Map<String, dynamic> json) =>
-      _$SigningRequestFromJson(json);
+  factory SigningRequest.fromJson(Map<String, dynamic> json) => _$SigningRequestFromJson(json);
+
+  bool get broadcast => (flags & 1 << 0) != 0;
+
+  bool get background => (flags & 1 << 1) != 0;
 
   Map<String, dynamic> toJson() => _$SigningRequestToJson(this);
 
@@ -40,8 +43,7 @@ class SigningRequest {
 
   factory SigningRequest.fromBinary(Type type, Uint8List data) {
     var buffer = SerialBuffer(data);
-    var deserializedData =
-        Map<String, dynamic>.from(type.deserialize(type, buffer));
+    var deserializedData = Map<String, dynamic>.from(type.deserialize(type, buffer));
     return SigningRequest.fromJson(deserializedData);
   }
 }

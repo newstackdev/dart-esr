@@ -7,12 +7,11 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  http: ^0.13.4
+  http: ^0.13.5
   json_annotation: ^4.3.0
-  pointycastle: ^3.3.5
-  eosdart:
-    path: ../eosdart
+  pointycastle: ^3.6.2
+  eosdart: ^0.4.8
       
 dev_dependencies:
   test: ^1.0.0
-  build_runner: ^1.7.4
+  build_runner: ^2.3.3

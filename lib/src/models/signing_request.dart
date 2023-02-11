@@ -24,7 +24,8 @@ class SigningRequest {
 
   SigningRequest();
 
-  factory SigningRequest.fromJson(Map<String, dynamic> json) => _$SigningRequestFromJson(json);
+  factory SigningRequest.fromJson(Map<String, dynamic> json) =>
+      _$SigningRequestFromJson(json);
 
   bool get broadcast => (flags & 1 << 0) != 0;
 
@@ -37,13 +38,14 @@ class SigningRequest {
 
   Uint8List toBinary(Type type) {
     var buffer = SerialBuffer(Uint8List(0));
-    type.serialize(type, buffer, this.toJson());
+    type.serialize!(type, buffer, this.toJson());
     return buffer.asUint8List();
   }
 
   factory SigningRequest.fromBinary(Type type, Uint8List data) {
     var buffer = SerialBuffer(data);
-    var deserializedData = Map<String, dynamic>.from(type.deserialize(type, buffer));
+    var deserializedData =
+        Map<String, dynamic>.from(type.deserialize!(type, buffer));
     return SigningRequest.fromJson(deserializedData);
   }
 }

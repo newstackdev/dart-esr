@@ -8,24 +8,23 @@ part 'identity.g.dart';
 @JsonSerializable(explicitToJson: true)
 abstract class Identity {
   @JsonKey(name: 'permission')
-  IdentityPermission identityPermission;
+  late IdentityPermission identityPermission;
 
   Map<String, dynamic> toJson();
 
   Uint8List toBinary(Type type) {
     var buffer = SerialBuffer(Uint8List(0));
-    type.serialize(type, buffer, this.toJson());
+    type.serialize!(type, buffer, this.toJson());
     return buffer.asUint8List();
   }
 }
 
 @JsonSerializable(explicitToJson: true)
-class IdentityV2 extends Identity{
-
+class IdentityV2 extends Identity {
   IdentityV2();
 
   factory IdentityV2.fromJson(Map<String, dynamic> json) =>
-      _$IdentityV2FromJson(json);
+      _$IdentityV2FromJson(json) as IdentityV2;
 
   @override
   Map<String, dynamic> toJson() => _$IdentityV2ToJson(this);
@@ -35,14 +34,14 @@ class IdentityV2 extends Identity{
 }
 
 @JsonSerializable(explicitToJson: true)
-class IdentityV3 extends Identity{
+class IdentityV3 extends Identity {
   @JsonKey(name: 'scope')
-  String scope;
+  late String scope;
 
   IdentityV3();
 
   factory IdentityV3.fromJson(Map<String, dynamic> json) =>
-      _$IdentityV3FromJson(json);
+      _$IdentityV3FromJson(json) as IdentityV3;
 
   @override
   Map<String, dynamic> toJson() => _$IdentityV3ToJson(this);
@@ -54,10 +53,10 @@ class IdentityV3 extends Identity{
 @JsonSerializable(explicitToJson: true)
 class IdentityPermission {
   @JsonKey(name: 'actor')
-  String actor;
+  late String actor;
 
   @JsonKey(name: 'permission')
-  String permission;
+  late String permission;
 
   IdentityPermission();
 

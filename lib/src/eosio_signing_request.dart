@@ -17,28 +17,42 @@ import 'package:eosdart/eosdart.dart' as eosDart;
  * The callback payload sent to background callbacks.
  */
 class CallbackPayload {
+  CallbackPayload({
+    required this.sig,
+    this.tx,
+    required this.bn,
+    required this.sa,
+    required this.sp,
+    required this.rbn,
+    required this.rid,
+    required this.req,
+    required this.ex,
+    required this.cid,
+    this.sigX = const [],
+  });
+
   // /** The first signature. */
-  String sig;
+  final String sig;
   /** Transaction ID as HEX-encoded string. */
-  String tx;
+  String? tx;
   /** Block number hint (only present if transaction was broadcast). */
-  String bn;
+  final String bn;
   /** Signer authority, aka account name. */
-  String sa;
+  final String sa;
   /** Signer permission, e.g. "active". */
-  String sp;
+  final String sp;
   /** Reference block num used when resolving request. */
-  String rbn;
+  final String rbn;
   /** Reference block id used when resolving request. */
-  String rid;
+  final String rid;
   /** The originating signing request packed as a uri string. */
-  String req;
+  final String req;
   /** Expiration time used when resolving request. */
-  String ex;
+  final String ex;
   /** The resolved chain id.  */
-  String cid;
+  final String cid;
   /** All signatures 0-indexed as `sig0`, `sig1`, etc. */
-  List<String> sigX = [];
+  final List<String> sigX;
 }
 
 /**
@@ -46,41 +60,58 @@ class CallbackPayload {
  * Compatible with the JSON response from a `push_transaction` call.
  */
 class ResolvedCallback {
+  ResolvedCallback({
+    required this.url,
+    required this.background,
+    required this.payload,
+  });
+
   /** The URL to hit. */
-  String url;
+  final String url;
   /**
      * Whether to run the request in the background. For a https url this
      * means POST in the background instead of a GET redirect.
      */
-  bool background;
+  final bool background;
   /**
      * The callback payload as a object that should be encoded to JSON
      * and POSTed to background callbacks.
      */
-  CallbackPayload payload;
+  final CallbackPayload payload;
 }
 
 class EOSIOSigningrequest {
-  EOSSerializeUtils _client;
-  Map<int, Map<String, eosDart.Type>> _signingRequestTypes;
-  SigningRequest _signingRequest;
-  Uint8List _request;
-  int _version;
-  String _esrURI;
-  eosDart.Transaction _resolveTransaction;
+  late EOSSerializeUtils _client;
+  late Map<int, Map<String, eosDart.Type>> _signingRequestTypes;
+  late SigningRequest _signingRequest;
+  late Uint8List _request;
+  late int _version;
+  late String _esrURI;
+  late eosDart.Transaction _resolveTransaction;
 
-  EOSIOSigningrequest(String nodeUrl, String nodeVersion,
-      {String chainId, ChainName chainName, int flags = 1, String callback = '', List info, int version = 2}) {
+  EOSIOSigningrequest(
+    String nodeUrl,
+    String nodeVersion, {
+    String? chainId,
+    ChainName? chainName,
+    int flags = 1,
+    String callback = '',
+    List? info,
+    int version = 2,
+  }) {
     this._signingRequest = SigningRequest();
     this._client = EOSSerializeUtils(nodeUrl, nodeVersion);
 
     this._signingRequestTypes = {
-      2: eosDart.getTypesFromAbi(eosDart.createInitialTypes(), eosDart.Abi.fromJson(json.decode(signingRequestJsonV2))),
-      3: eosDart.getTypesFromAbi(eosDart.createInitialTypes(), eosDart.Abi.fromJson(json.decode(signingRequestJsonV3)))
+      2: eosDart.getTypesFromAbi(eosDart.createInitialTypes(),
+          eosDart.Abi.fromJson(json.decode(signingRequestJsonV2))),
+      3: eosDart.getTypesFromAbi(eosDart.createInitialTypes(),
+          eosDart.Abi.fromJson(json.decode(signingRequestJsonV3)))
     };
 
     this.setChainId(chainName: chainName, chainId: chainId);
-    this.setOtherFields(flags: flags, callback: callback, info: info != null ? info : []);
+    this.setOtherFields(
+        flags: flags, callback: callback, info: info != null ? info : []);
     this._version = version;
   }
 
@@ -88,9 +119,12 @@ class EOSIOSigningrequest {
     _client = EOSSerializeUtils(nodeUrl, nodeVersion);
   }
 
-  void setChainId({ChainName chainName, String chainId}) {
+  void setChainId({ChainName? chainName, String? chainId}) {
     if (chainName != null) {
-      _signingRequest.chainId = ['chain_alias', ESRConstants.getChainAlias(chainName)];
+      _signingRequest.chainId = [
+        'chain_alias',
+        ESRConstants.getChainAlias(chainName)
+      ];
       return;
     } else if (chainId != null) {
       _signingRequest.chainId = ['chain_id', chainId];
@@ -100,7 +134,7 @@ class EOSIOSigningrequest {
     }
   }
 
-  void setOtherFields({int flags, String callback, List info}) {
+  void setOtherFields({int? flags, String? callback, List? info}) {
     if (flags != null) this._signingRequest.flags = flags;
     if (callback != null) this._signingRequest.callback = callback;
     if (info != null) this._signingRequest.info = info;
@@ -145,7 +179,8 @@ class EOSIOSigningrequest {
   }
 
   Future<String> _encode() async {
-    this._request = _signingRequest.toBinary(_signingRequestTypes[this._version]['signing_request']);
+    this._request = _signingRequest
+        .toBinary(_signingRequestTypes[this._version]!['signing_request']!);
 
     this._compressRequest();
     this._addVersionHeaderToRequest();
@@ -171,8 +206,10 @@ class EOSIOSigningrequest {
     list = decoded.sublist(1);
     var decompressed = ZLibCodec(raw: true).decode(list);
 
-    this._signingRequest =
-        SigningRequest.fromBinary(_signingRequestTypes[this._version]['signing_request'], decompressed);
+    this._signingRequest = SigningRequest.fromBinary(
+      _signingRequestTypes[this._version]!['signing_request']!,
+      Uint8List.fromList(decompressed),
+    );
   }
 
   SigningRequest deserialize(String encodedRequest) {
@@ -183,7 +220,7 @@ class EOSIOSigningrequest {
 
   List<eosDart.Action> getRawActions(eosDart.Authorization authorization) {
     var req = _signingRequest.req;
-    List<eosDart.Action> actions;
+    List<eosDart.Action> actions = [];
     switch (req[0]) {
       case 'action':
         {}
@@ -201,7 +238,8 @@ class EOSIOSigningrequest {
             permission = authorization.toJson();
           }
 
-          var identityPermission = IdentityPermission.fromJson(new Map<String, dynamic>.from(permission));
+          var identityPermission = IdentityPermission.fromJson(
+              new Map<String, dynamic>.from(permission));
 
           // var identityPermission = IdentityPermission.fromJson(authorization.toJson());
 
@@ -213,12 +251,16 @@ class EOSIOSigningrequest {
               ..scope = req[1]['scope']
               ..identityPermission = identityPermission;
           }
-          var data = identity.toBinary(_signingRequestTypes[_version]['identity']);
+          var data =
+              identity.toBinary(_signingRequestTypes[_version]!['identity']);
           actions = [
             eosDart.Action()
               ..account = ''
               ..name = 'identity'
-              ..authorization = [eosDart.Authorization.fromJson(new Map<String, dynamic>.from(permission))]
+              ..authorization = [
+                eosDart.Authorization.fromJson(
+                    new Map<String, dynamic>.from(permission))
+              ]
               // ..authorization = [authorization]
               ..data = data
           ];
@@ -244,9 +286,11 @@ class EOSIOSigningrequest {
     }
   }
 
-  List<eosDart.Action> resolveAction(Type type, eosDart.Authorization authorization, List<eosDart.Action> actions) {
+  List<eosDart.Action> resolveAction(Type type,
+      eosDart.Authorization authorization, List<eosDart.Action> actions) {
     List<eosDart.Action> resolveActions;
     for (var action in actions) {}
+    return [];
   }
 
   eosDart.Transaction resolveTransaction(eosDart.Authorization authorization) {
@@ -257,29 +301,33 @@ class EOSIOSigningrequest {
   }
 
   eosDart.Transaction resolve(eosDart.Authorization authorization) {
-    if (this._signingRequest == null) throw 'Must decode signing request before resolve it!';
+    if (this._signingRequest == null)
+      throw 'Must decode signing request before resolve it!';
     return resolveTransaction(authorization);
     // var resolveTransaction = getRawTransaction(_signingRequest, authorization);
   }
 
-  ResolvedCallback getCallback(eosDart.Transaction signedTx, eosDart.Authorization authorization) {
-    var callbackPayload = CallbackPayload()
-      ..sig = signedTx.signatures.toString()
-      ..bn = signedTx.refBlockNum.toString()
-      ..ex = signedTx.expiration.toIso8601String()
-      ..rbn = signedTx.refBlockNum.toString()
-      ..req = _esrURI
-      ..rid = signedTx.refBlockPrefix.toString() // TODO: block id
-      ..sa = authorization.actor
-      ..sp = authorization.permission
-      ..cid = _signingRequest.chainId.toString();
+  ResolvedCallback getCallback(
+      eosDart.Transaction signedTx, eosDart.Authorization authorization) {
+    var callbackPayload = CallbackPayload(
+      sig: signedTx.signatures.toString(),
+      bn: signedTx.refBlockNum.toString(),
+      ex: signedTx.expiration!.toIso8601String(),
+      rbn: signedTx.refBlockNum.toString(),
+      req: _esrURI,
+      rid: signedTx.refBlockPrefix.toString(),
+      sa: authorization.actor!,
+      sp: authorization.permission!,
+      cid: _signingRequest.chainId.toString(),
+    );
 
     // TODO: multisig
 
-    return ResolvedCallback()
-      ..url = this._signingRequest.callback
-      ..background = this._signingRequest.background
-      ..payload = callbackPayload;
+    return ResolvedCallback(
+      url: this._signingRequest.callback,
+      background: this._signingRequest.background,
+      payload: callbackPayload,
+    );
   }
 
   void _compressRequest() {
